@@ -146,7 +146,7 @@ if __name__ == '__main__':
         idx=2
     ))
 
-    # print(myWorksheet.deleteWorksheet(
-    #     spreadsheetId='1rAse3CL3uO_sfMRh1g9YRg_4POeeLi10SMv3467EeIw',
-    #     title='test'
-    # ))
+    print(myWorksheet.deleteWorksheet(
+        spreadsheetId='1rAse3CL3uO_sfMRh1g9YRg_4POeeLi10SMv3467EeIw',
+        title='test'
+    ))

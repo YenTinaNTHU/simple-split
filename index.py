@@ -4,7 +4,8 @@ app = Flask(__name__)
 from flask import request, abort
 from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError
-from linebot.models import JoinEvent, MessageEvent, TextMessage, TextSendMessage, QuickReply, QuickReplyButton, MessageAction
+from linebot.models import JoinEvent, LeaveEvent
+from linebot.models import MessageEvent, TextMessage, TextSendMessage, QuickReply, QuickReplyButton, MessageAction
 
 import os
 from dotenv import load_dotenv
@@ -13,6 +14,7 @@ load_dotenv()
 import sys
 sys.path.insert(0, './lib')
 from googleSheets import GoogleSheets
+from groups import *
 from users import *
 from records import *
 
@@ -43,15 +45,19 @@ def handle_join(event):
     # the global variables
     global group_id
     
-    newcoming_text = "謝謝邀請我這個機器來至此群組！！我會盡力為大家服務的～"
+    newcoming_text = "謝謝邀請我這個機器人來至此群組！！我會盡力為大家服務的～"
     line_bot_api.reply_message(
             event.reply_token,
             TextMessage(text=newcoming_text)
         )
-    group_id = event.source.group_id
-    print(group_id)
+    addGroup(event.source.group_id, event.reply_token)
+    print(f'line bot join the group {event.source.group_id}')
     # member_ids_res = line_bot_api.get_group_member_ids(group_id)
     # print(member_ids_res)
+
+@handler.add(LeaveEvent)
+def handle_leave(event):
+    print("leave")
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
@@ -113,31 +119,29 @@ def handle_message(event):
         delete = deleteUser(user_id, user_name, user_ids, sheetID=GOOGLE_SHEET_ID, sheetRange='工作表1')
         new_users_list=delete['new_users_list']
         delecase=delete['case']
-        match (delecase):
-            case (1):
-                message = TextSendMessage(
-                    text = "目前沒有人在分帳行列中"
-                    )
-                line_bot_api.reply_message(event.reply_token, message)
-            case (2):
-                deleUser_updatesheet2(user_id, user_name, user_ids, sheetID=GOOGLE_SHEET_ID, sheetRange='工作表2')
-                message = TextSendMessage(
-                    text = "退出成功"
-                    )
-                line_bot_api.reply_message(event.reply_token, message)
-            case (3):
-                message = TextSendMessage(
-                    text = "失敗 你還欠錢!"
-                    )
-                line_bot_api.reply_message(event.reply_token, message)
-            case (4):
-                message = TextSendMessage(
-                    text = "你沒有加入分帳行列喔!"
-                    )
-                line_bot_api.reply_message(event.reply_token, message)
-            case _:
-                print("Something error")
-        pass
+        if delecase==1:
+            message = TextSendMessage(
+                text = "目前沒有人在分帳行列中"
+                )
+            line_bot_api.reply_message(event.reply_token, message)
+        elif delecase==2:
+            deleUser_updatesheet2(user_id, user_name, user_ids, sheetID=GOOGLE_SHEET_ID, sheetRange='工作表2')
+            message = TextSendMessage(
+                text = "退出成功"
+                )
+            line_bot_api.reply_message(event.reply_token, message)
+        elif delecase==3:
+            message = TextSendMessage(
+                text = "失敗 你還欠錢!"
+                )
+            line_bot_api.reply_message(event.reply_token, message)
+        elif delecase==4:
+            message = TextSendMessage(
+                text = "你沒有加入分帳行列喔!"
+                )
+            line_bot_api.reply_message(event.reply_token, message)
+        else:
+            print("Something error")
     
     if m_text == '分帳':
         # TODO 顯示大家目前的欠款情形

@@ -70,8 +70,9 @@ def handle_message(event):
     # take user name
     profile = line_bot_api.get_profile(user_id)
     user_name = profile.display_name
-    # user_ids = addUser(user_id, user_name, user_ids, sheetID=GOOGLE_SHEET_ID, sheetRange='工作表1')
-
+    group_id = event.source.group_id
+    sheet_user="users_"+group_id #Ceae1368257972845966af19198fab96f
+    sheet_record="records_"+group_id
     m_text = event.message.text
 
     type = checkMessageType(m_text)
@@ -90,16 +91,14 @@ def handle_message(event):
 
     if m_text == '記帳':
         #count current asset
-        current_asset = count_current_asset(user_id, user_name, user_ids, sheetID=GOOGLE_SHEET_ID, sheetRange='工作表2')
+        current_asset = count_current_asset(user_id, user_name, user_ids, sheetID=GOOGLE_SHEET_ID, sheetRange=sheet_record)
         #update user_google_sheet
-        update_current_asset(current_asset,user_id, user_name, user_ids, sheetID=GOOGLE_SHEET_ID, sheetRange='工作表1')
+        update_current_asset(current_asset,user_id, user_name, user_ids, sheetID=GOOGLE_SHEET_ID, sheetRange=sheet_user)
         # TODO: maybe we can try LIFF
         pass
     if m_text == '加入分帳':
-        # TODO add member
-        # {'new_users_list':new_users_list,'newuser':new_user}
-        addUser_updatesheet2(user_id, user_name, user_ids, sheetID=GOOGLE_SHEET_ID, sheetRange='工作表2')
-        add = addUser(user_id, user_name, user_ids, sheetID=GOOGLE_SHEET_ID, sheetRange='工作表1')
+        addUser_updatesheet2(user_id, user_name, user_ids, sheetID=GOOGLE_SHEET_ID, sheetRange=sheet_record)
+        add = addUser(user_id, user_name, user_ids, sheetID=GOOGLE_SHEET_ID, sheetRange=sheet_user)
         new_users_list=add['new_users_list']
         isnew_user=add['newuser']
         if isnew_user==0:
@@ -114,9 +113,7 @@ def handle_message(event):
             line_bot_api.reply_message(event.reply_token, message)
         pass
     if m_text == '退出分帳':
-        # TODO delete member
-        # 需要還錢才能退出
-        delete = deleteUser(user_id, user_name, user_ids, sheetID=GOOGLE_SHEET_ID, sheetRange='工作表1')
+        delete = deleteUser(user_id, user_name, user_ids, sheetID=GOOGLE_SHEET_ID, sheetRange=sheet_user)
         new_users_list=delete['new_users_list']
         delecase=delete['case']
         if delecase==1:
@@ -125,7 +122,7 @@ def handle_message(event):
                 )
             line_bot_api.reply_message(event.reply_token, message)
         elif delecase==2:
-            deleUser_updatesheet2(user_id, user_name, user_ids, sheetID=GOOGLE_SHEET_ID, sheetRange='工作表2')
+            deleUser_updatesheet2(user_id, user_name, user_ids, sheetID=GOOGLE_SHEET_ID, sheetRange=sheet_record)
             message = TextSendMessage(
                 text = "退出成功"
                 )
@@ -152,7 +149,11 @@ def handle_message(event):
         pass
 
     if m_text == '那誰付錢':
-        # '根據我的經驗，我推薦<user_name>付錢'
+        recommend = recommend_payer(sheetID=GOOGLE_SHEET_ID, sheetRange=sheet_user)
+        message = TextSendMessage(
+                    text = "根據我的經驗，我推薦"+recommend+"付錢"
+                    )
+        line_bot_api.reply_message(event.reply_token, message)
         pass
 
     if m_text == '@文字' :

@@ -61,8 +61,10 @@ def handle_message(event):
     # since our account have not been verified yet, we cannot get all group member by group id
     # so we should add the member when they send message
     user_id = event.source.user_id
-    user_ids = addUser(user_id, user_ids, sheetID=GOOGLE_SHEET_ID, sheetRange='工作表1')
-    # print(user_ids)
+    # take user name
+    profile = line_bot_api.get_profile(user_id)
+    user_name = profile.display_name
+    # user_ids = addUser(user_id, user_name, user_ids, sheetID=GOOGLE_SHEET_ID, sheetRange='工作表1')
 
     m_text = event.message.text
 
@@ -81,14 +83,60 @@ def handle_message(event):
     # TODO: members' CRUD
 
     if m_text == '記帳':
+        #count current asset
+        current_asset = count_current_asset(user_id, user_name, user_ids, sheetID=GOOGLE_SHEET_ID, sheetRange='工作表2')
+        #update user_google_sheet
+        update_current_asset(current_asset,user_id, user_name, user_ids, sheetID=GOOGLE_SHEET_ID, sheetRange='工作表1')
         # TODO: maybe we can try LIFF
         pass
     if m_text == '加入分帳':
         # TODO add member
+        # {'new_users_list':new_users_list,'newuser':new_user}
+        addUser_updatesheet2(user_id, user_name, user_ids, sheetID=GOOGLE_SHEET_ID, sheetRange='工作表2')
+        add = addUser(user_id, user_name, user_ids, sheetID=GOOGLE_SHEET_ID, sheetRange='工作表1')
+        new_users_list=add['new_users_list']
+        isnew_user=add['newuser']
+        if isnew_user==0:
+            message = TextSendMessage(
+                    text = "你已經在行列之中了喔!"
+                    )
+            line_bot_api.reply_message(event.reply_token, message)
+        elif isnew_user ==1:
+            message = TextSendMessage(
+                    text = "成功加入"
+                    )
+            line_bot_api.reply_message(event.reply_token, message)
         pass
     if m_text == '退出分帳':
         # TODO delete member
         # 需要還錢才能退出
+        delete = deleteUser(user_id, user_name, user_ids, sheetID=GOOGLE_SHEET_ID, sheetRange='工作表1')
+        new_users_list=delete['new_users_list']
+        delecase=delete['case']
+        match (delecase):
+            case (1):
+                message = TextSendMessage(
+                    text = "目前沒有人在分帳行列中"
+                    )
+                line_bot_api.reply_message(event.reply_token, message)
+            case (2):
+                deleUser_updatesheet2(user_id, user_name, user_ids, sheetID=GOOGLE_SHEET_ID, sheetRange='工作表2')
+                message = TextSendMessage(
+                    text = "退出成功"
+                    )
+                line_bot_api.reply_message(event.reply_token, message)
+            case (3):
+                message = TextSendMessage(
+                    text = "失敗 你還欠錢!"
+                    )
+                line_bot_api.reply_message(event.reply_token, message)
+            case (4):
+                message = TextSendMessage(
+                    text = "你沒有加入分帳行列喔!"
+                    )
+                line_bot_api.reply_message(event.reply_token, message)
+            case _:
+                print("Something error")
         pass
     
     if m_text == '分帳':

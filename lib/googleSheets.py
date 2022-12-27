@@ -105,7 +105,7 @@ class GoogleSheets(GoogleAPIClient):
         ).execute()
         return 0
 
-    def deleteWorksheetRow(self, spreadsheetId: str, range: str, startIndex:int, endIndex:int):
+    def deleteWorksheetRow(self, spreadsheetId: str, range: str, idx):
         sheetId = self.getSheetId(spreadsheetId, range)
         request_body = {
             'requests':[{
@@ -113,8 +113,8 @@ class GoogleSheets(GoogleAPIClient):
                     'range':{
                         'sheetId':sheetId,
                         'dimension':'ROWS',
-                        'startIndex': startIndex,
-                        'endIndex': endIndex,
+                        'startIndex': idx+1,
+                        'endIndex': idx+2,
                     }
                 }
             }]
@@ -137,17 +137,16 @@ if __name__ == '__main__':
     print(myWorksheet.appendWorksheet(
         spreadsheetId='1rAse3CL3uO_sfMRh1g9YRg_4POeeLi10SMv3467EeIw',
         range='test',
-        df=pd.DataFrame(data={'col1': [1, 2, 3, 4,5], 'col2': [1,2,3,4,5]})
+        df=pd.DataFrame(data={'col1': ['col1',0,1,2,3,4,5], 'col2': ['col2',0,1,2,3,4,5]})
     ))
         
     print(myWorksheet.deleteWorksheetRow(
         spreadsheetId='1rAse3CL3uO_sfMRh1g9YRg_4POeeLi10SMv3467EeIw',
         range='test',
-        startIndex=1,
-        endIndex=4
+        idx=2
     ))
-    
-    print(myWorksheet.deleteWorksheet(
-        spreadsheetId='1rAse3CL3uO_sfMRh1g9YRg_4POeeLi10SMv3467EeIw',
-        title='test'
-    ))
+
+    # print(myWorksheet.deleteWorksheet(
+    #     spreadsheetId='1rAse3CL3uO_sfMRh1g9YRg_4POeeLi10SMv3467EeIw',
+    #     title='test'
+    # ))

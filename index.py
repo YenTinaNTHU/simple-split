@@ -101,12 +101,12 @@ def handle_message(event):
         isnew_user=add['newuser']
         if isnew_user==0:
             message = TextSendMessage(
-                    text = "你已經在行列之中了喔!"
+                    text = user_name+"已經在行列之中了喔!"
                     )
             line_bot_api.reply_message(event.reply_token, message)
         elif isnew_user ==1:
             message = TextSendMessage(
-                    text = "成功加入"
+                    text = user_name+"成功加入"
                     )
             line_bot_api.reply_message(event.reply_token, message)
         pass
@@ -122,17 +122,17 @@ def handle_message(event):
         elif delecase==2:
             deleUser_updatesheet2(user_id, user_name, user_ids, sheetID=GOOGLE_SHEET_ID, sheetRange=sheet_record)
             message = TextSendMessage(
-                text = "退出成功"
+                text = user_name+"退出成功"
                 )
             line_bot_api.reply_message(event.reply_token, message)
         elif delecase==3:
             message = TextSendMessage(
-                text = "失敗 你還欠錢!"
+                text = user_name+"退出失敗 你還欠錢!"
                 )
             line_bot_api.reply_message(event.reply_token, message)
         elif delecase==4:
             message = TextSendMessage(
-                text = "你沒有加入分帳行列喔!"
+                text = user_name+"沒有加入分帳行列喔!"
                 )
             line_bot_api.reply_message(event.reply_token, message)
         else:
@@ -140,6 +140,20 @@ def handle_message(event):
     
     elif m_text == '分帳':
         # TODO 顯示大家目前的欠款情形
+        return_asset = return_current_asset(sheetID=GOOGLE_SHEET_ID, sheetRange=sheet_user)
+        payerlist1=return_asset['payerlist1']
+        payerlist2=return_asset['payerlist2']
+        # print(payerlist1)
+        # print('------------------------')
+        # print(payerlist2)
+        message = TextSendMessage(
+                text = "目前欠款情形\n"
+                +"\n"
+                +"欠錢的人\n"+payerlist2
+                +"\n"
+                +"拿錢的人\n"+payerlist1
+                )
+        line_bot_api.reply_message(event.reply_token, message)
         pass
 
     elif m_text == '還錢':

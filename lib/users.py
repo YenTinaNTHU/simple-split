@@ -110,3 +110,31 @@ def recommend_payer(sheetID, sheetRange):
             payer=df_name[i]
             worst_current_asset=int(df_current_asset[i])
     return payer
+
+#recommend payer
+def return_current_asset(sheetID, sheetRange):
+    myWorksheet = GoogleSheets()
+    df = myWorksheet.getWorksheet(sheetID, sheetRange) 
+
+    df_current_asset = df["current_asset"]
+    df_name = df["name"]
+    payerlist1=[]
+    list1=''
+    payerlist2=[]
+    list2=''
+    for i in range(len(df.index)):
+        if(int(df_current_asset[i]) <= 0):
+            payerlist1.append(df_name[i])
+            payerlist1.append(df_current_asset[i])
+            list1=list1+df_name[i]+' : '+df_current_asset[i]+'元\n'
+        else:
+            payerlist2.append(df_name[i])
+            payerlist2.append(df_current_asset[i])
+            # list2='\n'.join(payerlist2)
+            list2=list2+df_name[i]+' : '+df_current_asset[i]+'元\n'
+    
+    print(list1)
+    # print('------------------------')
+    print(list2)
+    # return {'payerlist1':payerlist1,'payerlist2':payerlist2}
+    return {'payerlist1':list1,'payerlist2':list2}

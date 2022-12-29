@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 load_dotenv()
 GOOGLE_SHEET_ID = os.getenv('GOOGLE_SHEET_ID')
 
-def addGroup(group_id: str, reply_token:str):
+def addGroup(group_id: str):
     # add meta data
     sheet = GoogleSheets()
     sheet.appendWorksheet(
@@ -15,7 +15,6 @@ def addGroup(group_id: str, reply_token:str):
         df=pd.DataFrame(
             {
                 'group_id': [group_id],
-                'reply_token': [reply_token],
             }
         )
     )
@@ -61,26 +60,23 @@ def deleteGroup(group_id:str):
     # delete meta data
     df = sheet.getWorksheet(spreadsheetId=GOOGLE_SHEET_ID, range='global')
     idx = df['group_id'].loc[lambda x: x==group_id].index[0]
-    token = df['reply_token'][idx]
     sheet.deleteWorksheetRow(
         spreadsheetId=GOOGLE_SHEET_ID,
         range='global',
         idx=int(idx)
     )
-    return token
+    return 0
 
 
 if __name__ == '__main__':
     print(
         addGroup(
             group_id='000000a',
-            reply_token='1111111'
         )
     )
     print(
         addGroup(
             group_id='000001b',
-            reply_token='222222'
         )
     )
     print(

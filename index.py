@@ -1,6 +1,7 @@
 from flask import Flask
 app = Flask(__name__)
 
+from datetime import datetime
 from flask import request, abort
 from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError
@@ -29,6 +30,7 @@ handler = WebhookHandler(CHANNEL_SECRET)
 # these are just for testing
 group_id = ""
 user_ids = []
+recordnumber = 1
 
 @app.route("/callback", methods=['Post'])
 def callback():
@@ -80,24 +82,80 @@ def handle_message(event):
             print('line bot is active')
         return
 
-    type = checkMessageType(m_text)
-
+    # type = checkMessageType(m_text)
+    checkrecord = checkMessageType(m_text)
+    type=checkrecord['type']
+    events=checkrecord['event']
+    amount=checkrecord['amount']
+    list1=checkrecord['list1']
+    money=checkrecord['money']
+    deleid=checkrecord['deleid']
+    print('----------------------------')
+    print(type)
+    print(events)
+    print(amount)
+    print(list1)
+    print(money)
+    print(deleid)
+    print('----------------------------')
     # TODO: records' CRUD
+    # tmp=int(recordnumber)
+    global recordnumber
+    time=datetime.now()
     if type == 'CREATE_RECORD':
+        print('CREATE_RECORD')
+        print(time)
+        print(recordnumber)
+        tmp=creat(recordnumber,user_id, user_name, user_ids,events,amount,list1,str(time) ,sheet_user, sheetID=GOOGLE_SHEET_ID, sheetRange=sheet_record)
+        
+        if tmp=="-1":
+            message = TextSendMessage(
+                        text = "每位使用者都須先加入分帳喔"
+                        )
+            line_bot_api.reply_message(event.reply_token, message)
+        else:
+            message = TextSendMessage(
+                        text = "第 "+tmp+" 筆資料記帳成功"
+                        )
+            line_bot_api.reply_message(event.reply_token, message)
+            recordnumber=recordnumber+1
+            current_asset = count_current_asset(user_id, user_name, user_ids, sheetID=GOOGLE_SHEET_ID, sheetRange=sheet_record)
+            update_current_asset(current_asset,user_id, user_name, user_ids, sheetID=GOOGLE_SHEET_ID, sheetRange=sheet_user)
         pass
+    
     if type == 'READ_RECORD':
+        print('READ_RECORD')
         pass
     if type == 'UPDATE_RECORD':
+        update(recordnumber,user_id, user_name, user_ids,events,money,str(time) ,sheet_user, sheetID=GOOGLE_SHEET_ID, sheetRange=sheet_record)
+        message = TextSendMessage(
+                    text = "更新成功"
+                    )
+        line_bot_api.reply_message(event.reply_token, message)
+        recordnumber=recordnumber+1
+        current_asset = count_current_asset(user_id, user_name, user_ids, sheetID=GOOGLE_SHEET_ID, sheetRange=sheet_record)
+        update_current_asset(current_asset,user_id, user_name, user_ids, sheetID=GOOGLE_SHEET_ID, sheetRange=sheet_user)
+        print('UPDATE_RECORD')
         pass
     if type == 'DELETE_RECORD':
+        delet(deleid,sheetID=GOOGLE_SHEET_ID, sheetRange=sheet_record)
+        message = TextSendMessage(
+                    text = "第 "+str(deleid)+" 筆資料刪除成功"
+                    )
+        line_bot_api.reply_message(event.reply_token, message)
+        current_asset = count_current_asset(user_id, user_name, user_ids, sheetID=GOOGLE_SHEET_ID, sheetRange=sheet_record)
+        update_current_asset(current_asset,user_id, user_name, user_ids, sheetID=GOOGLE_SHEET_ID, sheetRange=sheet_user)
+        print('DELETE_RECORD')
         pass
 
-    # TODO: members' CRUD
 
+    # TODO: members' CRUD
+    print(user_ids)
+    
     if m_text == '記帳':
         #count current asset
         current_asset = count_current_asset(user_id, user_name, user_ids, sheetID=GOOGLE_SHEET_ID, sheetRange=sheet_record)
-        #update user_google_sheet
+        # update user_google_sheet
         update_current_asset(current_asset,user_id, user_name, user_ids, sheetID=GOOGLE_SHEET_ID, sheetRange=sheet_user)
         # TODO: maybe we can try LIFF
         pass

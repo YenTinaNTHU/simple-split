@@ -21,7 +21,7 @@ def addGroup(group_id: str):
     )
     # create new sheets
     users_col = ['user_id', 'name', 'current_asset']
-    records_col = ['id', 'user_id', 'payer', 'event', 'amount']
+    records_col = ['id', 'user_id', 'payer', 'event', 'amount','time']
 
     sheet.addWorksheet(
         spreadsheetId=GOOGLE_SHEET_ID,

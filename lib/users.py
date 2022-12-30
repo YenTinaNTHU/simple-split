@@ -66,7 +66,7 @@ def deleteUser(user_id:str, user_name:str, users_list:list, sheetID, sheetRange)
     
     if user_id in users_list:
         i = 0
-        if i <len(users_list):
+        for i in range(len(users_list)):
             if df.at[i, "name"]== user_name:
                 if df.at[i, "current_asset"]== '0':
                     new_df = df.drop([i], axis=0)
@@ -87,7 +87,7 @@ def count_current_asset(user_id:str, user_name:str, users_list:list, sheetID, sh
     case=0
     myWorksheet = GoogleSheets()
     df = myWorksheet.getWorksheet(sheetID, sheetRange)   
-    all_current_asset = df[user_name]
+    all_current_asset = df[user_id]
     sum=0
 
     for i in range(len(df.index)):
@@ -150,3 +150,12 @@ def return_current_asset(sheetID, sheetRange):
     print(list2)
     # return {'payerlist1':payerlist1,'payerlist2':payerlist2}
     return {'payerlist1':list1,'payerlist2':list2}
+
+def return_userid_byname(user_name:str,sheetID, sheetRange):
+    myWorksheet = GoogleSheets()
+    df = myWorksheet.getWorksheet(sheetID, sheetRange) 
+    for i in range(len(df.index)):
+        if df['name'][i] == user_name:
+            return df['user_id'][i]
+    
+    return "error"

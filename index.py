@@ -140,11 +140,16 @@ def handle_message(event):
     
     elif m_text == '分帳':
         # TODO 顯示大家目前的欠款情形
+        # 欠款的人：
+        # ＡＡＡ 100元
+        # 拿錢的人
+        # ＢＢＢ 100元
         pass
 
     elif m_text == '還錢':
         # TODO 應該跟記帳差不多
         pass
+    # TODO 收錢
     
     elif m_text == '刪除極簡分帳':
         leaving_text = "再見了各位..."

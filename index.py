@@ -116,6 +116,11 @@ def handle_message(event):
                     text = user_name+"成功加入"
                     )
             line_bot_api.reply_message(event.reply_token, message)
+        elif isnew_user ==2:
+            message = TextSendMessage(
+                    text = user_name+"更改名字成功"
+                    )
+            line_bot_api.reply_message(event.reply_token, message)
         pass
     elif m_text == '退出分帳':
         delete = deleteUser(user_id, user_name, user_ids, sheetID=GOOGLE_SHEET_ID, sheetRange=sheet_user)

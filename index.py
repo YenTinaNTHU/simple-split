@@ -82,7 +82,6 @@ def handle_message(event):
             print('line bot is active')
         return
 
-    # type = checkMessageType(m_text)
     checkrecord = checkMessageType(m_text)
     type=checkrecord['type']
     events=checkrecord['event']
@@ -90,22 +89,11 @@ def handle_message(event):
     list1=checkrecord['list1']
     money=checkrecord['money']
     deleid=checkrecord['deleid']
-    print('----------------------------')
-    print(type)
-    print(events)
-    print(amount)
-    print(list1)
-    print(money)
-    print(deleid)
-    print('----------------------------')
-    # TODO: records' CRUD
-    # tmp=int(recordnumber)
+
     global recordnumber
     time=datetime.now()
     if type == 'CREATE_RECORD':
         print('CREATE_RECORD')
-        print(time)
-        print(recordnumber)
         tmp=creat(recordnumber,user_id, user_name, user_ids,events,amount,list1,str(time) ,sheet_user, sheetID=GOOGLE_SHEET_ID, sheetRange=sheet_record)
         
         if tmp=="-1":
@@ -150,14 +138,12 @@ def handle_message(event):
 
 
     # TODO: members' CRUD
-    print(user_ids)
     
     if m_text == '記帳':
         #count current asset
         current_asset = count_current_asset(user_id, user_name, user_ids, sheetID=GOOGLE_SHEET_ID, sheetRange=sheet_record)
         # update user_google_sheet
         update_current_asset(current_asset,user_id, user_name, user_ids, sheetID=GOOGLE_SHEET_ID, sheetRange=sheet_user)
-        # TODO: maybe we can try LIFF
         pass
     elif m_text == '加入分帳':
         addUser_updatesheet2(user_id, user_name, user_ids, sheetID=GOOGLE_SHEET_ID, sheetRange=sheet_record)
@@ -213,9 +199,6 @@ def handle_message(event):
         return_asset = return_current_asset(sheetID=GOOGLE_SHEET_ID, sheetRange=sheet_user)
         payerlist1=return_asset['payerlist1']
         payerlist2=return_asset['payerlist2']
-        # print(payerlist1)
-        # print('------------------------')
-        # print(payerlist2)
         message = TextSendMessage(
                 text = "目前欠款情形\n"
                 +"\n"
@@ -226,10 +209,6 @@ def handle_message(event):
         line_bot_api.reply_message(event.reply_token, message)
         pass
 
-    elif m_text == '還錢':
-        # TODO 應該跟記帳差不多
-        pass
-    # TODO 收錢
     
     elif m_text == '刪除極簡分帳':
         leaving_text = "再見了各位..."

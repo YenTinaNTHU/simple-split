@@ -91,6 +91,7 @@ def creat(new_id:int,user_id:str, user_name:str, users_list:list,event:str,amoun
             new_df[users_list[i]]= everyone_money
             i+=1
 
+        new_df[user_id]=  int(amount)-int(everyone_money*(user_number-1))
         merged_df = df.append(new_df)
         myWorksheet.setWorksheet( spreadsheetId=sheetID, range=sheetRange, df=merged_df )
 
@@ -99,13 +100,9 @@ def creat(new_id:int,user_id:str, user_name:str, users_list:list,event:str,amoun
         user_number=len(users_list)
         print(user_number)
         i=0
+        allothermoney=0
         for i in range(len(users_list)):
             new_df[users_list[i]]= 0
-            # k=0
-            if users_list[i] in list1:
-                print("list:"+str(list1[k]))
-                k+=1
-            # new_df[users_list[i]]= everyone_money
 
             k=0
             for k in range(len(list1)):
@@ -116,11 +113,13 @@ def creat(new_id:int,user_id:str, user_name:str, users_list:list,event:str,amoun
                     new_id= -1
                     return str(new_id)
                 if users_list[i]==user_realid:
+                    allothermoney=int(allothermoney)+int(usermoney)
                     new_df[users_list[i]]= usermoney
 
                 k=+1
             i+=1
-        print(new_df)
+        # print(new_df)
+        new_df[user_id]= int(amount)-int(allothermoney)
         merged_df = df.append(new_df)
         myWorksheet.setWorksheet( spreadsheetId=sheetID, range=sheetRange, df=merged_df )
     # recordnumber=recordnumber+1

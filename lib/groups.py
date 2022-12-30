@@ -15,6 +15,7 @@ def addGroup(group_id: str):
         df=pd.DataFrame(
             {
                 'group_id': [group_id],
+                'active': [True]
             }
         )
     )
@@ -67,6 +68,22 @@ def deleteGroup(group_id:str):
     )
     return 0
 
+def isActive(group_id:str):
+    sheet = GoogleSheets()
+    df = sheet.getWorksheet(spreadsheetId=GOOGLE_SHEET_ID, range='global')
+    
+    return df.loc[df.group_id==group_id,'active'].values[0]=='TRUE'
+
+def setActive(group_id:str, is_active:bool):
+    sheet = GoogleSheets()
+    df = sheet.getWorksheet(spreadsheetId=GOOGLE_SHEET_ID, range='global')
+    if is_active:
+        df.loc[df.group_id==group_id, 'active'] ='TRUE'
+    else:
+        df.loc[df.group_id==group_id, 'active'] = 'FALSE'
+    sheet.setWorksheet(spreadsheetId=GOOGLE_SHEET_ID, range='global', df=df)
+    return 0
+    
 
 if __name__ == '__main__':
     print(
@@ -79,6 +96,10 @@ if __name__ == '__main__':
             group_id='000001b',
         )
     )
+    print(setActive('000001b', False))
+    print(isActive('000001b'))
+    print(setActive('000001b', True))
+    print(isActive('000001b'))
     print(
         deleteGroup(
             group_id='000000a',

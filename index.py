@@ -59,8 +59,6 @@ def handle_leave(event):
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
-    # the global variables
-    global user_ids
 
     # since our account have not been verified yet, we cannot get all group member by group id
     # so we should add the member when they send message
@@ -72,6 +70,15 @@ def handle_message(event):
     sheet_user="users_"+group_id #Ceae1368257972845966af19198fab96f
     sheet_record="records_"+group_id
     m_text = event.message.text
+
+    # check if active
+    if not isActive(group_id):
+        if m_text == '開啟極簡分帳':
+            message = TextSendMessage(text = "感謝大家願意再次開啟極簡分帳！我會盡力為大家服務的～")
+            line_bot_api.reply_message(event.reply_token, message)
+            setActive(group_id, True)
+            print('line bot is active')
+        return
 
     type = checkMessageType(m_text)
 
@@ -176,6 +183,12 @@ def handle_message(event):
                     )
         line_bot_api.reply_message(event.reply_token, message)
         pass
+
+    elif m_text == '關閉極簡分帳':
+        setActive(group_id, False)
+        message = TextSendMessage(text = "已關閉極減分帳，若要再次開啟請輸入「開啟即減分帳」。")
+        line_bot_api.reply_message(event.reply_token, message)
+        print('line bot close')
 
     elif m_text == '@文字' :
         try:

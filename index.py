@@ -44,7 +44,7 @@ def callback():
 
 @handler.add(JoinEvent)
 def handle_join(event):
-    newcoming_text = "謝謝邀請我這個機器人來至此群組！！我會盡力為大家服務的～"
+    newcoming_text = "謝謝邀請我這個機器人來至此群組！！我會盡力為大家服務的～\n\n請加我好友並輸入「加入分帳」以使用分帳功能\n\n若欲查詢功能列表請輸入「功能」"
     line_bot_api.reply_message(
             event.reply_token,
             TextMessage(text=newcoming_text)
@@ -76,11 +76,69 @@ def handle_message(event):
     # check if active
     if not isActive(group_id):
         if m_text == '開啟極簡分帳':
-            message = TextSendMessage(text = "感謝大家願意再次開啟極簡分帳！我會盡力為大家服務的～")
+            message = TextSendMessage(text = "感謝大家願意再次開啟極簡分帳！我會盡力為大家服務的～\n\n若欲查詢功能列表請輸入\n「功能」")
             line_bot_api.reply_message(event.reply_token, message)
             setActive(group_id, True)
             print('line bot is active')
         return
+    
+    if m_text == '功能':
+        message = TextSendMessage(
+            text = "功能：\n\n記帳\n查詢\n分帳\n付款人推薦\n還錢\n收錢\n退出\n開啟機器人\n關閉機器人\n移除機器人\n\n慾查詢功能使用方法請輸入\n「功能名稱+方法」\n例:記帳方法"
+        )
+        line_bot_api.reply_message(event.reply_token, message)    
+    elif m_text == '記帳方法':
+        message = TextSendMessage(
+            text = "由付款人輸入\n\n平分:\n\n請輸入\n「記帳\n項目 總金額」\n\n按金額分:\n\n請輸入\n「記帳\n項目 總金額\n@欠款人 欠款金額」\n\n按比例分:\n\n請輸入\n「記帳\n項目 總金額\n@欠款人 比例」"
+        )
+        line_bot_api.reply_message(event.reply_token, message)    
+    elif m_text == '查詢方法':
+        message = TextSendMessage(
+            text = "這將會印出目前的記帳款項\n\n請輸入\n「查詢」"
+        )
+        line_bot_api.reply_message(event.reply_token, message)  
+    elif m_text == '分帳方法':
+        message = TextSendMessage(
+            text = "這將會顯示目前的欠款情形\n\n請輸入\n「分帳」"
+        )
+        line_bot_api.reply_message(event.reply_token, message) 
+    elif m_text == '付款人推薦方法':
+        message = TextSendMessage(
+            text = "這將會依據目前欠款最多的人進行推薦\n\n請輸入\n「那誰付錢」"
+        )
+        line_bot_api.reply_message(event.reply_token, message) 
+    elif m_text == '還錢方法':
+        message = TextSendMessage(
+            text = "若欲還錢請輸入\n「還錢 還款金額」"
+        )
+        line_bot_api.reply_message(event.reply_token, message) 
+    elif m_text == '收錢方法':
+        message = TextSendMessage(
+            text = "若欲收錢請輸入\n「收錢 收款金額」"
+        )
+        line_bot_api.reply_message(event.reply_token, message) 
+    elif m_text == '退出方法':
+        message = TextSendMessage(
+            text = "若欲退出分帳列表請輸入\n「退出分帳」\n\n這將會導致您無法再使用分帳功能"
+        )
+        line_bot_api.reply_message(event.reply_token, message) 
+    elif m_text == '開啟機器人方法':
+        message = TextSendMessage(
+            text = "若機器人處於關閉狀態欲開啟請輸入\n「開啟極簡分帳」"
+        )
+        line_bot_api.reply_message(event.reply_token, message) 
+    elif m_text == '關閉機器人方法':
+        message = TextSendMessage(
+            text = "若欲關閉機器人請輸入\n「關閉極簡分帳」"
+        )
+        line_bot_api.reply_message(event.reply_token, message) 
+    elif m_text == '移除機器人方法':
+        message = TextSendMessage(
+            text = "若欲將機器人移出群組請輸入\n「刪除極簡分帳」"
+        )
+        line_bot_api.reply_message(event.reply_token, message) 
+    else:
+        pass
 
     checkrecord = checkMessageType(m_text)
     type=checkrecord['type']
@@ -228,7 +286,7 @@ def handle_message(event):
 
     elif m_text == '關閉極簡分帳':
         setActive(group_id, False)
-        message = TextSendMessage(text = "已關閉極減分帳，若要再次開啟請輸入「開啟即減分帳」。")
+        message = TextSendMessage(text = "已關閉極減分帳，若要再次開啟請輸入「開啟極簡分帳」。")
         line_bot_api.reply_message(event.reply_token, message)
         print('line bot close')
 

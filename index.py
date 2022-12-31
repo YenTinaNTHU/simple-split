@@ -29,8 +29,7 @@ handler = WebhookHandler(CHANNEL_SECRET)
 # all data should be recorded at google sheet
 # these are just for testing
 group_id = ""
-user_ids = ['Ucfb5a9b63b4082c641b5485917348c9c','U5e134a123d1565751248646b8de70ee3','Ud359005bbd6c9d22d23f2dbdb5de4b15']
-# user_ids = []
+user_ids = []
 recordnumber = 1
 
 @app.route("/callback", methods=['Post'])
@@ -71,10 +70,9 @@ def handle_message(event):
     user_name = profile.display_name
     group_id = event.source.group_id
     print(group_id)
-    sheet_user="users_"+group_id #Ceae1368257972845966af19198fab96f
+    sheet_user="users_"+group_id 
     sheet_record="records_"+group_id
-    # sheet_user="users_Ceae1368257972845966af19198fab96f" #Ceae1368257972845966af19198fab96f
-    # sheet_record="records_Ceae1368257972845966af19198fab96f"
+
     m_text = event.message.text
 
     # check if active

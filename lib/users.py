@@ -163,7 +163,6 @@ def return_userid_byname(user_name:str,sheetID, sheetRange):
 
 def alluser_update(users_list:list, sheetID, sheetRange1,sheetRange2):
     for i in range(len(users_list)):
-    # for i in range(0, 1):
         user_id=users_list[i]
         current_asset = count_current_asset(user_id, users_list, sheetID, sheetRange=sheetRange2)
         update_current_asset(current_asset,user_id, users_list, sheetID, sheetRange=sheetRange1)

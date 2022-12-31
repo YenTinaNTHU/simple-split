@@ -160,7 +160,3 @@ def df_to_png(df:pd.DataFrame()):
     ax.table(cellText=data,colLabels=column_labels,loc="center")
     plt.savefig('static/table.png',dpi=200)
     return 0
-
-if __name__ == '__main__':
-    df = getRecords('1rAse3CL3uO_sfMRh1g9YRg_4POeeLi10SMv3467EeIw', 'records_<group_id>')
-    df_to_png(df)

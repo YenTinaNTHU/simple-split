@@ -70,8 +70,10 @@ def handle_message(event):
     profile = line_bot_api.get_profile(user_id)
     user_name = profile.display_name
     group_id = event.source.group_id
-    sheet_user="users_"+group_id #Ceae1368257972845966af19198fab96f
+    print(group_id)
+    sheet_user="users_"+group_id 
     sheet_record="records_"+group_id
+
     m_text = event.message.text
 
     # check if active
@@ -153,7 +155,7 @@ def handle_message(event):
     time=datetime.now()
     if type == 'CREATE_RECORD':
         print('CREATE_RECORD')
-        tmp=creat(recordnumber,user_id, user_name, user_ids,events,amount,list1,str(time) ,sheet_user, sheetID=GOOGLE_SHEET_ID, sheetRange=sheet_record)
+        tmp=creat(recordnumber,user_id, user_name, user_ids,events,amount,list1,str(time) ,sheetRange2=sheet_user, sheetID=GOOGLE_SHEET_ID, sheetRange=sheet_record)
         
         if tmp=="-1":
             message = TextSendMessage(
@@ -166,8 +168,7 @@ def handle_message(event):
                         )
             line_bot_api.reply_message(event.reply_token, message)
             recordnumber=recordnumber+1
-            current_asset = count_current_asset(user_id, user_name, user_ids, sheetID=GOOGLE_SHEET_ID, sheetRange=sheet_record)
-            update_current_asset(current_asset,user_id, user_name, user_ids, sheetID=GOOGLE_SHEET_ID, sheetRange=sheet_user)
+            alluser_update(user_ids,sheetID=GOOGLE_SHEET_ID, sheetRange1=sheet_user,sheetRange2=sheet_record)
         pass
     
     if type == 'READ_RECORD':
@@ -178,9 +179,14 @@ def handle_message(event):
                     text = "更新成功"
                     )
         line_bot_api.reply_message(event.reply_token, message)
+<<<<<<< HEAD
         recordnumber = recordnumber+1
         current_asset = count_current_asset(user_id, user_name, user_ids, sheetID=GOOGLE_SHEET_ID, sheetRange=sheet_record)
         update_current_asset(current_asset,user_id, user_name, user_ids, sheetID=GOOGLE_SHEET_ID, sheetRange=sheet_user)
+=======
+        recordnumber=recordnumber+1
+        alluser_update(user_ids,sheetID=GOOGLE_SHEET_ID, sheetRange1=sheet_user,sheetRange2=sheet_record)
+>>>>>>> 497bd33254ce4f1dc901fd0f964c5e07f516400c
         print('UPDATE_RECORD')
         pass
     if type == 'DELETE_RECORD':
@@ -189,8 +195,7 @@ def handle_message(event):
                     text = "第 "+str(deleid)+" 筆資料刪除成功"
                     )
         line_bot_api.reply_message(event.reply_token, message)
-        current_asset = count_current_asset(user_id, user_name, user_ids, sheetID=GOOGLE_SHEET_ID, sheetRange=sheet_record)
-        update_current_asset(current_asset,user_id, user_name, user_ids, sheetID=GOOGLE_SHEET_ID, sheetRange=sheet_user)
+        alluser_update(user_ids,sheetID=GOOGLE_SHEET_ID, sheetRange1=sheet_user,sheetRange2=sheet_record)
         print('DELETE_RECORD')
         pass
 

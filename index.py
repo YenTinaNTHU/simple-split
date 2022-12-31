@@ -22,6 +22,7 @@ from records import *
 CHANNEL_ACCESS_TOKEN = os.getenv('CHANNEL_ACCESS_TOKEN')
 CHANNEL_SECRET = os.getenv('CHANNEL_SECRET')
 GOOGLE_SHEET_ID = os.getenv('GOOGLE_SHEET_ID')
+SERVER_URL = os.getenv('SERVER_URL ')
 
 line_bot_api = LineBotApi(CHANNEL_ACCESS_TOKEN)
 handler = WebhookHandler(CHANNEL_SECRET)
@@ -170,7 +171,6 @@ def handle_message(event):
         pass
     
     if type == 'READ_RECORD':
-        print('READ_RECORD')
         pass
     if type == 'UPDATE_RECORD':
         update(recordnumber,user_id, user_name, user_ids,events,money,str(time) ,sheet_user, sheetID=GOOGLE_SHEET_ID, sheetRange=sheet_record)
@@ -178,7 +178,7 @@ def handle_message(event):
                     text = "更新成功"
                     )
         line_bot_api.reply_message(event.reply_token, message)
-        recordnumber=recordnumber+1
+        recordnumber = recordnumber+1
         current_asset = count_current_asset(user_id, user_name, user_ids, sheetID=GOOGLE_SHEET_ID, sheetRange=sheet_record)
         update_current_asset(current_asset,user_id, user_name, user_ids, sheetID=GOOGLE_SHEET_ID, sheetRange=sheet_user)
         print('UPDATE_RECORD')
@@ -194,8 +194,15 @@ def handle_message(event):
         print('DELETE_RECORD')
         pass
 
+    if m_text == '查詢':
+        df = getRecords(sheetID=GOOGLE_SHEET_ID, sheetRange=sheet_record)
+        message = TextSendMessage(
+            text = df.to_string(header=False, index=False)
+            )
+        line_bot_api.reply_message(event.reply_token, message)
+        # message = ImageSendMessage(original_content_url = ngrok_url + "/static/" + event.message.id + ".png", preview_image_url = ngrok_url + "/static/" + event.message.id + ".png")
+        print('read record')
 
-    # TODO: members' CRUD
     
     if m_text == '記帳':
         #count current asset

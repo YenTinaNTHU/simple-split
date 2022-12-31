@@ -7,6 +7,7 @@ load_dotenv()
 GOOGLE_SHEET_ID = os.getenv('GOOGLE_SHEET_ID')
 
 def addGroup(group_id: str):
+    # TODO check if the group exit
     # add meta data
     sheet = GoogleSheets()
     sheet.appendWorksheet(

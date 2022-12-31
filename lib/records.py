@@ -1,9 +1,11 @@
 import pandas as pd
-import pygsheets
+#import pygsheets
+import matplotlib.pyplot as plt
 from users import *
-from lib.googleSheets import GoogleSheets
+from googleSheets import GoogleSheets
+
 def checkMessageType(msg:str):
-    str1=msg.replace("@", "");
+    str1=msg.replace("@", "")
     str2 = str1.split('\n')
     lenstr=len(str2)
     deleid=0
@@ -131,3 +133,23 @@ def update(new_id:int,user_id:str, user_name:str, users_list:list,event:str,mone
 
     merged_df = df.append(new_df)
     myWorksheet.setWorksheet( spreadsheetId=sheetID, range=sheetRange, df=merged_df )
+
+def getRecords(sheetID:str, sheetRange:str):
+    myWorksheet = GoogleSheets()
+    df = myWorksheet.getWorksheet(sheetID, sheetRange)
+    data_df = df.loc[:, ['id','payer','event','amount']]
+    return data_df
+
+def df_to_png(df:pd.DataFrame()):
+    plt.rcParams['font.sans-serif'] = ['Arial Unicode MS']
+    fig, ax =plt.subplots(1,1)
+    data=df.values.tolist()
+    column_labels=df.columns
+    ax.axis('off')
+    ax.table(cellText=data,colLabels=column_labels,loc="center")
+    plt.savefig('static/table.png',dpi=200)
+    return 0
+
+if __name__ == '__main__':
+    df = getRecords('1rAse3CL3uO_sfMRh1g9YRg_4POeeLi10SMv3467EeIw', 'records_<group_id>')
+    df_to_png(df)

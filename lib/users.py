@@ -1,5 +1,5 @@
 import pandas as pd
-from lib.googleSheets import GoogleSheets
+from googleSheets import GoogleSheets
 
 def addUser_updatesheet2(user_id:str, user_name:str, users_list:list, sheetID, sheetRange):
    

@@ -179,14 +179,8 @@ def handle_message(event):
                     text = "更新成功"
                     )
         line_bot_api.reply_message(event.reply_token, message)
-<<<<<<< HEAD
-        recordnumber = recordnumber+1
-        current_asset = count_current_asset(user_id, user_name, user_ids, sheetID=GOOGLE_SHEET_ID, sheetRange=sheet_record)
-        update_current_asset(current_asset,user_id, user_name, user_ids, sheetID=GOOGLE_SHEET_ID, sheetRange=sheet_user)
-=======
         recordnumber=recordnumber+1
         alluser_update(user_ids,sheetID=GOOGLE_SHEET_ID, sheetRange1=sheet_user,sheetRange2=sheet_record)
->>>>>>> 497bd33254ce4f1dc901fd0f964c5e07f516400c
         print('UPDATE_RECORD')
         pass
     if type == 'DELETE_RECORD':

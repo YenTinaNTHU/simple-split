@@ -29,7 +29,7 @@ def addUser(user_id:str, user_name:str, users_list:list, sheetID, sheetRange):
         new_users_list = users_list
 
         i = 0
-        if i <len(users_list):
+        for i in range(len(users_list)):
             if df.at[i, "user_id"]== user_id:
                 if df.at[i, "name"]!= user_name:
                     new_df = df
@@ -83,7 +83,7 @@ def deleteUser(user_id:str, user_name:str, users_list:list, sheetID, sheetRange)
         return {'new_users_list':new_users_list,'case':case}
 
 # update current_asset
-def count_current_asset(user_id:str, user_name:str, users_list:list, sheetID, sheetRange):
+def count_current_asset(user_id:str, users_list:list, sheetID, sheetRange):
     case=0
     myWorksheet = GoogleSheets()
     df = myWorksheet.getWorksheet(sheetID, sheetRange)   
@@ -94,16 +94,16 @@ def count_current_asset(user_id:str, user_name:str, users_list:list, sheetID, sh
         sum=int(all_current_asset[i])+sum
     return int(sum)
 
-def update_current_asset(current_asset:int,user_id:str, user_name:str, users_list:list, sheetID, sheetRange):
+def update_current_asset(current_asset:int,user_id:str, users_list:list, sheetID, sheetRange):
 
     myWorksheet = GoogleSheets()
     df = myWorksheet.getWorksheet(sheetID, sheetRange)   
     df_update=df
     index=0
-    all_current_asset = df["name"]
+    all_current_asset = df["user_id"]
     for i in range(len(df.index)):
-        if(all_current_asset[i] == user_name ):
-            index=i-1
+        if(all_current_asset[i] == user_id ):
+            index=i
     update =current_asset
     df_update.iloc[index,2 ] = update
     myWorksheet.setWorksheet( spreadsheetId=sheetID, range=sheetRange, df=df_update )
@@ -159,3 +159,12 @@ def return_userid_byname(user_name:str,sheetID, sheetRange):
             return df['user_id'][i]
     
     return "error"
+
+
+def alluser_update(users_list:list, sheetID, sheetRange1,sheetRange2):
+    for i in range(len(users_list)):
+    # for i in range(0, 1):
+        user_id=users_list[i]
+        current_asset = count_current_asset(user_id, users_list, sheetID, sheetRange=sheetRange2)
+        update_current_asset(current_asset,user_id, users_list, sheetID, sheetRange=sheetRange1)
+    i=+1

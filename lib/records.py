@@ -56,7 +56,7 @@ def checkMessageType(msg:str):
     return {'type':type,'event':event,'amount':amount,'list1':list1,'money':money,'deleid':deleid}
 
 
-def creat(new_id:int,user_id:str, user_name:str, users_list:list,event:str,amount:int,list1:list,time:str,test:str, sheetID, sheetRange):
+def creat(new_id:int,user_id:str, user_name:str, users_list:list,event:str,amount:int,list1:list,time:str,sheetRange2, sheetID, sheetRange):
 
     myWorksheet = GoogleSheets()
     df = myWorksheet.getWorksheet(sheetID, sheetRange)
@@ -67,12 +67,12 @@ def creat(new_id:int,user_id:str, user_name:str, users_list:list,event:str,amoun
         everyone_money=int(amount)//int(user_number)
         
         i=0
-        if i <len(users_list):
+        for i in range(len(users_list)):
             new_df = df_add
             new_df[users_list[i]]= everyone_money
             i+=1
 
-        new_df[user_id]=  int(amount)-int(everyone_money*(user_number-1))
+        new_df[user_id]=  0-int(everyone_money*(user_number-1))
         merged_df = df.append(new_df)
         myWorksheet.setWorksheet( spreadsheetId=sheetID, range=sheetRange, df=merged_df )
 
@@ -81,24 +81,35 @@ def creat(new_id:int,user_id:str, user_name:str, users_list:list,event:str,amoun
         user_number=len(users_list)
         i=0
         allothermoney=0
+        print(list1)
         for i in range(len(users_list)):
             new_df[users_list[i]]= 0
+        i+=1
 
-            k=0
-            for k in range(len(list1)):
-                userid = list1[k].split(' ')[0]
-                usermoney = list1[k].split(' ')[1]
-                user_realid=return_userid_byname(userid,sheetID,test)
-                if user_realid=='error':
-                    new_id= -1
-                    return str(new_id)
-                if users_list[i]==user_realid:
-                    allothermoney=int(allothermoney)+int(usermoney)
-                    new_df[users_list[i]]= usermoney
+        k=0
+        for k in range(len(list1)):
+            tmpmoney= list1[k].split(' ')
+            username = tmpmoney[0]
+            usermoney = tmpmoney[1]
+            print(username)
+            print(usermoney)
+            df_user = myWorksheet.getWorksheet(sheetID, sheetRange2)
+            user_realid='error'
+            # print(df_user)
+            for i in range(len(df_user.index)):
+                if df_user['name'][i] == username:
+                    user_realid= df_user['user_id'][i]
 
-                k=+1
-            i+=1
-        new_df[user_id]= int(amount)-int(allothermoney)
+            if user_realid=='error':
+                new_id= -1
+                return str(new_id)
+
+            allothermoney=int(allothermoney)+int(usermoney)
+            new_df[user_realid]= usermoney
+            print("usermoney:"+usermoney)
+            k=+1
+            
+        new_df[user_id]= 0-int(allothermoney)
         merged_df = df.append(new_df)
         myWorksheet.setWorksheet( spreadsheetId=sheetID, range=sheetRange, df=merged_df )
     return str(new_id)

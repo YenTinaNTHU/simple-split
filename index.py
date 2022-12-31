@@ -186,7 +186,7 @@ def handle_message(event):
 
     elif m_text == '關閉極簡分帳':
         setActive(group_id, False)
-        message = TextSendMessage(text = "已關閉極減分帳，若要再次開啟請輸入「開啟即減分帳」。")
+        message = TextSendMessage(text = "已關閉極簡分帳，若要再次開啟請輸入「開啟即減分帳」。")
         line_bot_api.reply_message(event.reply_token, message)
         print('line bot close')
 

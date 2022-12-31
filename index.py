@@ -87,7 +87,7 @@ def handle_message(event):
     
     if m_text == '功能':
         message = TextSendMessage(
-            text = "功能：\n\n記帳\n查詢\n分帳\n付款人推薦\n還錢\n收錢\n退出\n開啟機器人\n關閉機器人\n移除機器人\n\n慾查詢功能使用方法請輸入\n「功能名稱+方法」\n例:記帳方法"
+            text = "功能：\n\n記帳\n查詢\n分帳\n付款人推薦\n還錢\n收錢\n退出\n開啟機器人\n關閉機器人\n移除機器人\n\n欲查詢功能使用方法請輸入\n「功能名稱+方法」\n例:記帳方法"
         )
         line_bot_api.reply_message(event.reply_token, message)    
     elif m_text == '記帳方法':
@@ -155,7 +155,25 @@ def handle_message(event):
     time=datetime.now()
     if type == 'CREATE_RECORD':
         print('CREATE_RECORD')
-        tmp=creat(recordnumber,user_id, user_name, user_ids,events,amount,list1,str(time) ,sheetRange2=sheet_user, sheetID=GOOGLE_SHEET_ID, sheetRange=sheet_record)
+        try:
+            tmp=creat(
+                new_id=recordnumber,
+                user_id=user_id,
+                user_name=user_name,
+                users_list=user_ids,
+                event=events,
+                amount=amount,
+                list1=list1,
+                time=str(time),
+                sheetRange2=sheet_user,
+                sheetID=GOOGLE_SHEET_ID,
+                sheetRange=sheet_record
+            )
+        except ZeroDivisionError:
+            message = TextSendMessage(
+                        text = "目前沒有人加入分帳，需要先加入分帳喔"
+                        )
+            line_bot_api.reply_message(event.reply_token, message)
         
         if tmp=="-1":
             message = TextSendMessage(
@@ -268,7 +286,7 @@ def handle_message(event):
                 +"\n"
                 +"欠錢的人\n"+payerlist2
                 +"\n"
-                +"拿錢的人\n"+payerlist1
+                +"收錢的人\n"+payerlist1
                 )
         line_bot_api.reply_message(event.reply_token, message)
         pass
@@ -292,7 +310,7 @@ def handle_message(event):
 
     elif m_text == '關閉極簡分帳':
         setActive(group_id, False)
-        message = TextSendMessage(text = "已關閉極簡分帳，若要再次開啟請輸入「開啟即減分帳」。")
+        message = TextSendMessage(text = "已關閉極簡分帳，若要再次開啟請輸入「開啟極簡分帳」。")
         line_bot_api.reply_message(event.reply_token, message)
         print('line bot close')
 

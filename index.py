@@ -1,6 +1,7 @@
 from flask import Flask
 app = Flask(__name__)
 
+from datetime import datetime
 from flask import request, abort
 from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError
@@ -29,6 +30,7 @@ handler = WebhookHandler(CHANNEL_SECRET)
 # these are just for testing
 group_id = ""
 user_ids = []
+recordnumber = 1
 
 @app.route("/callback", methods=['Post'])
 def callback():
@@ -42,7 +44,7 @@ def callback():
 
 @handler.add(JoinEvent)
 def handle_join(event):
-    newcoming_text = "謝謝邀請我這個機器人來至此群組！！我會盡力為大家服務的～"
+    newcoming_text = "謝謝邀請我這個機器人來至此群組！！我會盡力為大家服務的～\n\n請加我好友並輸入「加入分帳」以使用分帳功能\n\n若欲查詢功能列表請輸入「功能」"
     line_bot_api.reply_message(
             event.reply_token,
             TextMessage(text=newcoming_text)
@@ -74,32 +76,132 @@ def handle_message(event):
     # check if active
     if not isActive(group_id):
         if m_text == '開啟極簡分帳':
-            message = TextSendMessage(text = "感謝大家願意再次開啟極簡分帳！我會盡力為大家服務的～")
+            message = TextSendMessage(text = "感謝大家願意再次開啟極簡分帳！我會盡力為大家服務的～\n\n若欲查詢功能列表請輸入\n「功能」")
             line_bot_api.reply_message(event.reply_token, message)
             setActive(group_id, True)
             print('line bot is active')
         return
-
-    type = checkMessageType(m_text)
-
-    # TODO: records' CRUD
-    if type == 'CREATE_RECORD':
+    
+    if m_text == '功能':
+        message = TextSendMessage(
+            text = "功能：\n\n記帳\n查詢\n分帳\n付款人推薦\n還錢\n收錢\n退出\n開啟機器人\n關閉機器人\n移除機器人\n\n慾查詢功能使用方法請輸入\n「功能名稱+方法」\n例:記帳方法"
+        )
+        line_bot_api.reply_message(event.reply_token, message)    
+    elif m_text == '記帳方法':
+        message = TextSendMessage(
+            text = "由付款人輸入\n\n平分:\n\n請輸入\n「記帳\n項目 總金額」\n\n按金額分:\n\n請輸入\n「記帳\n項目 總金額\n@欠款人 欠款金額」\n\n按比例分:\n\n請輸入\n「記帳\n項目 總金額\n@欠款人 比例」"
+        )
+        line_bot_api.reply_message(event.reply_token, message)    
+    elif m_text == '查詢方法':
+        message = TextSendMessage(
+            text = "這將會印出目前的記帳款項\n\n請輸入\n「查詢」"
+        )
+        line_bot_api.reply_message(event.reply_token, message)  
+    elif m_text == '分帳方法':
+        message = TextSendMessage(
+            text = "這將會顯示目前的欠款情形\n\n請輸入\n「分帳」"
+        )
+        line_bot_api.reply_message(event.reply_token, message) 
+    elif m_text == '付款人推薦方法':
+        message = TextSendMessage(
+            text = "這將會依據目前欠款最多的人進行推薦\n\n請輸入\n「那誰付錢」"
+        )
+        line_bot_api.reply_message(event.reply_token, message) 
+    elif m_text == '還錢方法':
+        message = TextSendMessage(
+            text = "若欲還錢請輸入\n「還錢 還款金額」"
+        )
+        line_bot_api.reply_message(event.reply_token, message) 
+    elif m_text == '收錢方法':
+        message = TextSendMessage(
+            text = "若欲收錢請輸入\n「收錢 收款金額」"
+        )
+        line_bot_api.reply_message(event.reply_token, message) 
+    elif m_text == '退出方法':
+        message = TextSendMessage(
+            text = "若欲退出分帳列表請輸入\n「退出分帳」\n\n這將會導致您無法再使用分帳功能"
+        )
+        line_bot_api.reply_message(event.reply_token, message) 
+    elif m_text == '開啟機器人方法':
+        message = TextSendMessage(
+            text = "若機器人處於關閉狀態欲開啟請輸入\n「開啟極簡分帳」"
+        )
+        line_bot_api.reply_message(event.reply_token, message) 
+    elif m_text == '關閉機器人方法':
+        message = TextSendMessage(
+            text = "若欲關閉機器人請輸入\n「關閉極簡分帳」"
+        )
+        line_bot_api.reply_message(event.reply_token, message) 
+    elif m_text == '移除機器人方法':
+        message = TextSendMessage(
+            text = "若欲將機器人移出群組請輸入\n「刪除極簡分帳」"
+        )
+        line_bot_api.reply_message(event.reply_token, message) 
+    else:
         pass
+
+    checkrecord = checkMessageType(m_text)
+    type=checkrecord['type']
+    events=checkrecord['event']
+    amount=checkrecord['amount']
+    list1=checkrecord['list1']
+    money=checkrecord['money']
+    deleid=checkrecord['deleid']
+
+    global recordnumber
+    time=datetime.now()
+    if type == 'CREATE_RECORD':
+        print('CREATE_RECORD')
+        tmp=creat(recordnumber,user_id, user_name, user_ids,events,amount,list1,str(time) ,sheet_user, sheetID=GOOGLE_SHEET_ID, sheetRange=sheet_record)
+        
+        if tmp=="-1":
+            message = TextSendMessage(
+                        text = "每位使用者都須先加入分帳喔"
+                        )
+            line_bot_api.reply_message(event.reply_token, message)
+        else:
+            message = TextSendMessage(
+                        text = "第 "+tmp+" 筆資料記帳成功"
+                        )
+            line_bot_api.reply_message(event.reply_token, message)
+            recordnumber=recordnumber+1
+            current_asset = count_current_asset(user_id, user_name, user_ids, sheetID=GOOGLE_SHEET_ID, sheetRange=sheet_record)
+            update_current_asset(current_asset,user_id, user_name, user_ids, sheetID=GOOGLE_SHEET_ID, sheetRange=sheet_user)
+        pass
+    
     if type == 'READ_RECORD':
+        print('READ_RECORD')
         pass
     if type == 'UPDATE_RECORD':
+        update(recordnumber,user_id, user_name, user_ids,events,money,str(time) ,sheet_user, sheetID=GOOGLE_SHEET_ID, sheetRange=sheet_record)
+        message = TextSendMessage(
+                    text = "更新成功"
+                    )
+        line_bot_api.reply_message(event.reply_token, message)
+        recordnumber=recordnumber+1
+        current_asset = count_current_asset(user_id, user_name, user_ids, sheetID=GOOGLE_SHEET_ID, sheetRange=sheet_record)
+        update_current_asset(current_asset,user_id, user_name, user_ids, sheetID=GOOGLE_SHEET_ID, sheetRange=sheet_user)
+        print('UPDATE_RECORD')
         pass
     if type == 'DELETE_RECORD':
+        delet(deleid,sheetID=GOOGLE_SHEET_ID, sheetRange=sheet_record)
+        message = TextSendMessage(
+                    text = "第 "+str(deleid)+" 筆資料刪除成功"
+                    )
+        line_bot_api.reply_message(event.reply_token, message)
+        current_asset = count_current_asset(user_id, user_name, user_ids, sheetID=GOOGLE_SHEET_ID, sheetRange=sheet_record)
+        update_current_asset(current_asset,user_id, user_name, user_ids, sheetID=GOOGLE_SHEET_ID, sheetRange=sheet_user)
+        print('DELETE_RECORD')
         pass
 
-    # TODO: members' CRUD
 
+    # TODO: members' CRUD
+    
     if m_text == '記帳':
         #count current asset
         current_asset = count_current_asset(user_id, user_name, user_ids, sheetID=GOOGLE_SHEET_ID, sheetRange=sheet_record)
-        #update user_google_sheet
+        # update user_google_sheet
         update_current_asset(current_asset,user_id, user_name, user_ids, sheetID=GOOGLE_SHEET_ID, sheetRange=sheet_user)
-        # TODO: maybe we can try LIFF
         pass
     elif m_text == '加入分帳':
         addUser_updatesheet2(user_id, user_name, user_ids, sheetID=GOOGLE_SHEET_ID, sheetRange=sheet_record)
@@ -114,6 +216,11 @@ def handle_message(event):
         elif isnew_user ==1:
             message = TextSendMessage(
                     text = user_name+"成功加入"
+                    )
+            line_bot_api.reply_message(event.reply_token, message)
+        elif isnew_user ==2:
+            message = TextSendMessage(
+                    text = user_name+"更改名字成功"
                     )
             line_bot_api.reply_message(event.reply_token, message)
         pass
@@ -150,9 +257,6 @@ def handle_message(event):
         return_asset = return_current_asset(sheetID=GOOGLE_SHEET_ID, sheetRange=sheet_user)
         payerlist1=return_asset['payerlist1']
         payerlist2=return_asset['payerlist2']
-        # print(payerlist1)
-        # print('------------------------')
-        # print(payerlist2)
         message = TextSendMessage(
                 text = "目前欠款情形\n"
                 +"\n"
@@ -163,10 +267,6 @@ def handle_message(event):
         line_bot_api.reply_message(event.reply_token, message)
         pass
 
-    elif m_text == '還錢':
-        # TODO 應該跟記帳差不多
-        pass
-    # TODO 收錢
     
     elif m_text == '刪除極簡分帳':
         leaving_text = "再見了各位..."

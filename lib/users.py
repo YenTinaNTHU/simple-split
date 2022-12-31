@@ -9,21 +9,35 @@ def addUser_updatesheet2(user_id:str, user_name:str, users_list:list, sheetID, s
     else:
         myWorksheet = GoogleSheets()
         df = myWorksheet.getWorksheet(sheetID, sheetRange)
-        df[user_name] = 0
+        df[user_id] = 0
         myWorksheet.setWorksheet( spreadsheetId=sheetID, range=sheetRange, df=df )
 
 def deleUser_updatesheet2(user_id:str, user_name:str, users_list:list, sheetID, sheetRange):
     myWorksheet = GoogleSheets()
     df = myWorksheet.getWorksheet(sheetID, sheetRange)
-    df=df.drop(user_name,axis=1)
+    df=df.drop(user_id,axis=1)
     myWorksheet.setWorksheet( spreadsheetId=sheetID, range=sheetRange, df=df )
 
 def addUser(user_id:str, user_name:str, users_list:list, sheetID, sheetRange):
     new_users_list = []
     new_user = 0
+    
+    myWorksheet = GoogleSheets()
+    df = myWorksheet.getWorksheet(sheetID, sheetRange)
     # check if the user is in list
     if user_id in users_list:
         new_users_list = users_list
+
+        i = 0
+        if i <len(users_list):
+            if df.at[i, "user_id"]== user_id:
+                if df.at[i, "name"]!= user_name:
+                    new_df = df
+                    new_df.at[i, "name"]= user_name
+                    myWorksheet.setWorksheet( spreadsheetId=sheetID, range=sheetRange, df=new_df )
+                    new_user=2
+                
+            i+=1
     else:
         # 1. add user id to list
         new_users_list = users_list
@@ -34,8 +48,6 @@ def addUser(user_id:str, user_name:str, users_list:list, sheetID, sheetRange):
         user_number=len(new_users_list)
         df_add = pd.DataFrame({'user_id': user_id, 'name': user_name,'current_asset': int(0) },index=[user_number])
 
-        myWorksheet = GoogleSheets()
-        df = myWorksheet.getWorksheet(sheetID, sheetRange)
         merged_df = df.append(df_add)
         myWorksheet.setWorksheet( spreadsheetId=sheetID, range=sheetRange, df=merged_df )
 
@@ -54,7 +66,7 @@ def deleteUser(user_id:str, user_name:str, users_list:list, sheetID, sheetRange)
     
     if user_id in users_list:
         i = 0
-        if i <len(users_list):
+        for i in range(len(users_list)):
             if df.at[i, "name"]== user_name:
                 if df.at[i, "current_asset"]== '0':
                     new_df = df.drop([i], axis=0)
@@ -75,7 +87,7 @@ def count_current_asset(user_id:str, user_name:str, users_list:list, sheetID, sh
     case=0
     myWorksheet = GoogleSheets()
     df = myWorksheet.getWorksheet(sheetID, sheetRange)   
-    all_current_asset = df[user_name]
+    all_current_asset = df[user_id]
     sum=0
 
     for i in range(len(df.index)):
@@ -138,3 +150,12 @@ def return_current_asset(sheetID, sheetRange):
     print(list2)
     # return {'payerlist1':payerlist1,'payerlist2':payerlist2}
     return {'payerlist1':list1,'payerlist2':list2}
+
+def return_userid_byname(user_name:str,sheetID, sheetRange):
+    myWorksheet = GoogleSheets()
+    df = myWorksheet.getWorksheet(sheetID, sheetRange) 
+    for i in range(len(df.index)):
+        if df['name'][i] == user_name:
+            return df['user_id'][i]
+    
+    return "error"

@@ -1,6 +1,5 @@
 import pandas as pd
 #import pygsheets
-import matplotlib.pyplot as plt
 from users import *
 from googleSheets import GoogleSheets
 
@@ -24,12 +23,12 @@ def checkMessageType(msg:str):
         elif str3[0]=='收錢':
             event='收錢'
             money=str3[1]
-            type = 'UPDATE_RECORD'
+            type = 'CREATE_RECORD'
             pass
         elif str3[0]=='還錢':
             event='還錢'
             money="-"+str3[1]
-            type = 'UPDATE_RECORD'
+            type = 'CREATE_RECORD'
             pass
         else:
             type = 'error'
@@ -58,9 +57,13 @@ def checkMessageType(msg:str):
     return {'type':type,'event':event,'amount':amount,'list1':list1,'money':money,'deleid':deleid}
 
 
-def creat(new_id:int,user_id:str, user_name:str, users_list:list,event:str,amount:int,list1:list,time:str,sheetRange2, sheetID, sheetRange):
-
+def creat(new_id:int,user_id:str, user_name:str, users_list:list,event:str,amount:int,list1:list,time:str,sheetRange2, sheetID, sheetRange, group_id):
     myWorksheet = GoogleSheets()
+    # update record num
+    global_df = myWorksheet.getWorksheet(sheetID, 'global')
+    global_df.loc[global_df.group_id==group_id, 'record_num'] = new_id
+    myWorksheet.setWorksheet(spreadsheetId=sheetID, range='global', df=global_df)
+
     df = myWorksheet.getWorksheet(sheetID, sheetRange)
     df_add = pd.DataFrame({'id': new_id,'user_id': user_id, 'payer': user_name,'event': event,'amount':amount,'time':time },index=[new_id])
 
@@ -151,12 +154,16 @@ def getRecords(sheetID:str, sheetRange:str):
     data_df = df.loc[:, ['id','payer','event','amount']]
     return data_df
 
-def df_to_png(df:pd.DataFrame()):
-    plt.rcParams['font.sans-serif'] = ['Arial Unicode MS']
-    fig, ax =plt.subplots(1,1)
-    data=df.values.tolist()
-    column_labels=df.columns
-    ax.axis('off')
-    ax.table(cellText=data,colLabels=column_labels,loc="center")
-    plt.savefig('static/table.png',dpi=200)
-    return 0
+def getRecordsNumber(sheetID:str, group_id):
+    myWorksheet = GoogleSheets()
+    df = myWorksheet.getWorksheet(sheetID, 'global')
+    record_num = int((df.loc[df.group_id==group_id,'record_num']).values[0])
+    return record_num
+
+# if __name__ == '__main__':
+#     print(
+#         getRecordsNumber(
+#             sheetID='1rAse3CL3uO_sfMRh1g9YRg_4POeeLi10SMv3467EeIw',
+#             sheetRange='records_<group_id>'
+#             )
+#         )

@@ -27,11 +27,9 @@ SERVER_URL = os.getenv('SERVER_URL ')
 line_bot_api = LineBotApi(CHANNEL_ACCESS_TOKEN)
 handler = WebhookHandler(CHANNEL_SECRET)
 
-# all data should be recorded at google sheet
-# these are just for testing
-group_id = ""
-user_ids = []
-recordnumber = 1
+@app.route("/")
+def hello():
+    return "Python Flask fly.io v2!"
 
 @app.route("/callback", methods=['Post'])
 def callback():
@@ -74,6 +72,10 @@ def handle_message(event):
     sheet_user="users_"+group_id 
     sheet_record="records_"+group_id
 
+    # get record numbers
+    recordnumber = getRecordsNumber(GOOGLE_SHEET_ID, group_id)
+    # get user ids
+    user_ids = getUserIDs(GOOGLE_SHEET_ID, sheet_user)
     m_text = event.message.text
 
     # check if active
@@ -151,13 +153,12 @@ def handle_message(event):
     money=checkrecord['money']
     deleid=checkrecord['deleid']
 
-    global recordnumber
     time=datetime.now()
     if type == 'CREATE_RECORD':
         print('CREATE_RECORD')
         try:
             tmp=creat(
-                new_id=recordnumber,
+                new_id=recordnumber+1,
                 user_id=user_id,
                 user_name=user_name,
                 users_list=user_ids,
@@ -167,8 +168,10 @@ def handle_message(event):
                 time=str(time),
                 sheetRange2=sheet_user,
                 sheetID=GOOGLE_SHEET_ID,
-                sheetRange=sheet_record
+                sheetRange=sheet_record,
+                group_id=group_id
             )
+            recordnumber = getRecordsNumber(GOOGLE_SHEET_ID, group_id)
         except ZeroDivisionError:
             message = TextSendMessage(
                         text = "目前沒有人加入分帳，需要先加入分帳喔"
@@ -247,7 +250,7 @@ def handle_message(event):
                     text = user_name+"更改名字成功"
                     )
             line_bot_api.reply_message(event.reply_token, message)
-        pass
+        user_ids = getUserIDs(GOOGLE_SHEET_ID, sheet_user)
     elif m_text == '退出分帳':
         delete = deleteUser(user_id, user_name, user_ids, sheetID=GOOGLE_SHEET_ID, sheetRange=sheet_user)
         new_users_list=delete['new_users_list']
@@ -275,6 +278,7 @@ def handle_message(event):
             line_bot_api.reply_message(event.reply_token, message)
         else:
             print("Something error")
+        user_ids = getUserIDs(GOOGLE_SHEET_ID, sheet_user)
     
     elif m_text == '分帳':
         # TODO 顯示大家目前的欠款情形

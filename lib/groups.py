@@ -16,7 +16,8 @@ def addGroup(group_id: str):
         df=pd.DataFrame(
             {
                 'group_id': [group_id],
-                'active': [True]
+                'active': [True],
+                'record_num': 0,
             }
         )
     )

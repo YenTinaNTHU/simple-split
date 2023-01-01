@@ -167,3 +167,14 @@ def alluser_update(users_list:list, sheetID, sheetRange1,sheetRange2):
         current_asset = count_current_asset(user_id, users_list, sheetID, sheetRange=sheetRange2)
         update_current_asset(current_asset,user_id, users_list, sheetID, sheetRange=sheetRange1)
     i=+1
+
+def getUserIDs(sheetID, sheet_user):
+    myWorksheet = GoogleSheets()
+    df = myWorksheet.getWorksheet(sheetID, sheet_user) 
+    return df['user_id'].to_list()
+
+if __name__ == '__main__':
+    print(getUserIDs(
+        sheetID='1rAse3CL3uO_sfMRh1g9YRg_4POeeLi10SMv3467EeIw',
+        sheet_user='users_<group_id>'
+    ))

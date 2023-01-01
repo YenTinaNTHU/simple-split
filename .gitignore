@@ -1,3 +1,8 @@
 .env
 .credentials
 test.ipynb
+analysis
+static/
+.dockerignore
+fly.toml
+Procfile
